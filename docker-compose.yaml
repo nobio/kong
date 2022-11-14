@@ -17,6 +17,8 @@ services:
       - POSTGRES_PASSWORD=kong
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
+    networks:
+      - kong-network
 
   # -----------------------------------------------------------
   # KONG BOOTSTRAP
@@ -34,6 +36,8 @@ services:
     command: kong migrations bootstrap
     depends_on:
       - kong-database
+    networks:
+      - kong-network
 
   # -----------------------------------------------------------
   # KONG
@@ -72,6 +76,8 @@ services:
       - kong-database:kong-database
     depends_on:
       - kong-bootstrap
+    networks:
+      - kong-network
 
   # -----------------------------------------------------------
   # DECK (apply kong.yaml)
@@ -89,6 +95,8 @@ services:
     entrypoint: deck sync -s /mnt/deck/kong.yaml
     volumes:
       - ${PWD}/config/:/mnt/deck/
+    networks:
+      - kong-network
 
   # -----------------------------------------------------------
   # KONGA
@@ -112,3 +120,30 @@ services:
       - DB_PASSWORD=kong
       - DB_DATABASE=konga
       - KONGA_LOG_LEVEL=debug
+    networks:
+      - kong-network
+
+  # -----------------------------------------------------------
+  # PROMETHEUS
+  # -----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    depends_on:
+      - kong
+    volumes:
+      - ${PWD}/config:/etc/prometheus/
+    command: "--config.file=/etc/prometheus/prometheus.yaml --storage.tsdb.path=/prometheus"
+    ports:
+      - 9090:9090
+    networks:
+      - kong-network
+
+# -----------------------------------------------------------
+# NETWORK definition
+# -----------------------------------------------------------
+networks:
+  kong-network:
+    external: true
+    name: nobio-network

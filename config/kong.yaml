@@ -1,43 +1,46 @@
 _format_version: "3.0"
+plugins:
+  - name: correlation-id
+    enabled: true
+    config:
+      echo_downstream: true
+      generator: uuid#counter
+      header_name: X-correlation-id
+    protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+  - name: prometheus
+    enabled: true
+    config:
+      bandwidth_metrics: true
+      latency_metrics: true
+      per_consumer: false
+      status_code_metrics: true
+      upstream_health_metrics: false
+    protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
 services:
-  - connect_timeout: 60000
+  - name: timetracker-entries
+    connect_timeout: 5000
     enabled: true
-    host: mockbin.org
-    name: mockbin
-    port: 80
+    host: timetracker
+    path: /api/entries
+    port: 30000
     protocol: http
-    read_timeout: 60000
-    retries: 5
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
     routes:
-      - https_redirect_status_code: 426
-        name: root
-        path_handling: v0
-        paths:
-          - /mockbin
-        preserve_host: false
-        protocols:
-          - http
-          - https
-        regex_priority: 0
-        request_buffering: true
-        response_buffering: true
-        strip_path: true
-    write_timeout: 60000
-  - connect_timeout: 60000
-    enabled: true
-    host: nobio.myhome-server.de
-    name: timetracker
-    path: /api
-    port: 443
-    protocol: https
-    read_timeout: 60000
-    retries: 5
-    routes:
-      - https_redirect_status_code: 426
-        name: timetracker
+      - name: timetracker-entries
+        https_redirect_status_code: 426
         path_handling: v1
         paths:
-          - /api
+          - /timetracker/api/entries
         preserve_host: false
         protocols:
           - http
@@ -46,4 +49,314 @@ services:
         request_buffering: true
         response_buffering: true
         strip_path: true
-    write_timeout: 60000
+  - name: timetracker-geofences
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/geofences
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-geofences
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/geofences
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-geotrack
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/geotrack
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-geotrack
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/geotrack
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-admin
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/admin
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-admin
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/admin
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-toggles
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/toggles
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-toggles
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/toggles
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-stats
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/stats
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-stats
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/stats
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-statistics
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/statistics
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-statistics
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/statistics
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-properties
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/properties
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-properties
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/properties
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-users
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/users
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-users
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/users
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-auth
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/auth
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-auth
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/auth
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-log
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/log
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-log
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/log
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-ping
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/ping
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-ping
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/ping
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-version
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/version
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-version
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/version
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
+  - name: timetracker-health
+    connect_timeout: 5000
+    enabled: true
+    host: timetracker
+    path: /api/health
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-health
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/health
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
