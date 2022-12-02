@@ -140,6 +140,35 @@ services:
     networks:
       - kong-network
 
+  # -----------------------------------------------------------
+  # LOKI
+  # -----------------------------------------------------------
+  loki:
+    image: grafana/loki:2.3.0
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    networks:
+      - kong-network
+
+  # -----------------------------------------------------------
+  # LOKI-ROUTER
+  # -----------------------------------------------------------
+  loki-router:
+    image: nobio/loki-router:master
+    ports:
+      - "30500:30500"
+      - "30501:30501"
+    environment:
+      - LOKI_URL=http://loki:3100
+    depends_on:
+      - kong
+      - loki
+    networks:
+      - kong-network
+
 # -----------------------------------------------------------
 # NETWORK definition
 # -----------------------------------------------------------
