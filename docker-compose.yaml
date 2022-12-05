@@ -145,6 +145,8 @@ services:
   # -----------------------------------------------------------
   loki:
     image: grafana/loki:2.3.0
+    container_name: loki
+    restart: always
     volumes:
       - ./config/loki-config.yaml:/etc/loki/loki-config.yaml
     ports:
@@ -158,13 +160,14 @@ services:
   # -----------------------------------------------------------
   loki-router:
     image: nobio/loki-router:master
+    container_name: loki-router
+    restart: always
     ports:
       - "30500:30500"
       - "30501:30501"
     environment:
       - LOKI_URL=http://loki:3100
     depends_on:
-      - kong
       - loki
     networks:
       - kong-network
