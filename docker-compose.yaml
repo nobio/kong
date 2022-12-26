@@ -33,7 +33,7 @@ services:
       - KONG_PG_HOST=kong-database
       - KONG_PG_PASSWORD=kong
       - KONG_CASSANDRA_CONTACT_POINTS=kong-database
-    command: kong migrations bootstrap
+    command: kong migrations bootstrap && kong migrations up
     depends_on:
       - kong-database
     networks:
