@@ -76,6 +76,10 @@ services:
       - kong-database:kong-database
     depends_on:
       - kong-bootstrap
+      - jaeger
+      - loki
+      - loki-router
+      - prometheus
     networks:
       - kong-network
 
@@ -130,8 +134,6 @@ services:
     image: prom/prometheus
     container_name: prometheus
     restart: always
-    depends_on:
-      - kong
     volumes:
       - ${PWD}/config:/etc/prometheus/
     command: "--config.file=/etc/prometheus/prometheus.yaml --storage.tsdb.path=/prometheus"
@@ -171,6 +173,18 @@ services:
       - loki
     networks:
       - kong-network
+
+  # -----------------------------------------------------------
+  # JAEGER ALL-IN-ONE
+  # -----------------------------------------------------------
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    networks:
+    - kong-network
+    ports:
+    - 16686:16686
+    - 14269:14269
 
 # -----------------------------------------------------------
 # NETWORK definition
