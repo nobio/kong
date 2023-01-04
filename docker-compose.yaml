@@ -192,6 +192,8 @@ services:
     - 14268:14268
     - 14269:14269
     - 9411:9411
+    environment:
+    - COLLECTOR_ZIPKIN_HOST_PORT=9411
     networks:
     - kong-network
 
