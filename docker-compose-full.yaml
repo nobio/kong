@@ -10,13 +10,10 @@ services:
     restart: always
     ports:
       - 5432:5432
-    env_file:
-      - .env
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kong"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_DB=kong
+      - POSTGRES_PASSWORD=kong
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     networks:
@@ -54,7 +51,6 @@ services:
     networks:
       - kong-network
 
-
   # -----------------------------------------------------------
   # KONG
   # -----------------------------------------------------------
@@ -87,8 +83,10 @@ services:
       - kong-database:kong-database
     depends_on:
       - kong-bootstrap
-      - kong-migration
-      - kong-database
+      #- jaeger
+      - loki
+      - loki-router
+      - prometheus
     networks:
       - kong-network
 
@@ -109,6 +107,82 @@ services:
     networks:
       - kong-network
 
+  # -----------------------------------------------------------
+  # PROMETHEUS
+  # -----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ${PWD}/config:/etc/prometheus/
+    command: "--config.file=/etc/prometheus/prometheus.yaml --storage.tsdb.path=/prometheus"
+    ports:
+      - 9090:9090
+    networks:
+      - kong-network
+
+  # -----------------------------------------------------------
+  # LOKI
+  # -----------------------------------------------------------
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    networks:
+      - kong-network
+
+  # -----------------------------------------------------------
+  # LOKI-ROUTER
+  # -----------------------------------------------------------
+  loki-router:
+    image: ${LOKI_ROUTER_IMAGE}
+    container_name: loki-router
+    restart: always
+    ports:
+      - "30500:30500"
+      - "30501:30501"
+    environment:
+      - LOKI_URL=http://loki:3100
+    depends_on:
+      - loki
+    networks:
+      - kong-network
+
+  # -----------------------------------------------------------
+  # JAEGER ALL-IN-ONE
+  # -----------------------------------------------------------
+  #jaeger:
+  #  container_name: ${JAEGER_IMAGE}
+  #  image: jaegertracing/all-in-one:latest
+  #  restart: always
+  #  ports:
+  #  - 5775:5775/udp
+  #  - 6831:6831/udp
+  #  - 6832:6832/udp
+  #  - 5778:5778
+  #  - 16686:16686
+  #  - 14250:14250
+  #  - 14268:14268
+  #  - 14269:14269
+  #  - 9411:9411
+  #  environment:
+  # - COLLECTOR_ZIPKIN_HOST_PORT=9411
+  # networks:
+  # - kong-network
+
+  # -----------------------------------------------------------
+  # ZIPKIN ALL-IN-ONE
+  # -----------------------------------------------------------
+  #zipkin-all-in-one:
+  #  image: openzipkin/zipkin:latest
+  #  ports:
+  #    - "9411:9411"
 
 # -----------------------------------------------------------
 # NETWORK definition

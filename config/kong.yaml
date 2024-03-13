@@ -1,10 +1,43 @@
 _format_version: "3.0"
+consumers:
+  - custom_id: owntracks
+    keyauth_credentials:
+      - key: djfu47dHSfmOid83K03kd02isSKJXbY9
+    tags:
+      - geo
+      - geolocation
+      - tracker
+    username: owntracks
+  - custom_id: timetracker-ui
+    keyauth_credentials:
+      - key: Loak38Jue7Gtw5stGabYx6xb4sgXgsFS
+    tags:
+      - ui
+      - frontend
+      - timetracker
+    username: timetracker-ui
+  - custom_id: uptime-kuma
+    username: uptime-kuma
+    keyauth_credentials:
+      - key: GiHXjgRKs3gEDJjyfovJsP8pzUkjEJTi
+    tags:
+      - ui
+      - frontend
+      - kuma
+      - health
+  - custom_id: service-monitor
+    keyauth_credentials:
+      - key: abc123
+    tags:
+      - health
+      - servicemon
+    username: service-monitor
 plugins:
   - name: correlation-id
     enabled: true
     config:
       echo_downstream: true
-      generator: uuid#counter
+      generator: "uuid#counter"
       header_name: X-correlation-id
     protocols:
       - grpc
@@ -12,7 +45,7 @@ plugins:
       - http
       - https
   - name: prometheus
-    enabled: true
+    enabled: false
     config:
       bandwidth_metrics: true
       latency_metrics: true
@@ -24,6 +57,46 @@ plugins:
       - grpcs
       - http
       - https
+  - name: http-log
+    enabled: false
+    config:
+      content_type: application/json
+      custom_fields_by_lua: null
+      flush_timeout: 2
+      headers: null
+      http_endpoint: "http://loki-router:30500/api/log"
+      keepalive: 60000
+      method: POST
+      queue_size: 1
+      retry_count: 10
+      timeout: 10000
+    protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+  - name: key-auth
+    enabled: true
+    protocols:
+      - http
+      - https
+    config:
+      anonymous: null
+      hide_credentials: false
+      key_in_body: false
+      key_in_header: true
+      key_in_query: false
+      key_names:
+        - api-key
+      run_on_preflight: true
+  - name: file-log
+    enabled: false
+    protocols:
+      - http
+      - https
+    config:
+      reopen: false
+      path: /usr/local/kong/logs/system.log
 services:
   - name: timetracker-entries
     connect_timeout: 5000
@@ -360,6 +433,34 @@ services:
         request_buffering: true
         response_buffering: true
         strip_path: true
+    plugins:
+      - name: proxy-cache
+        enabled: true
+        protocols:
+          - http
+          - https
+        config:
+          cache_control: false
+          cache_ttl: 120
+          content_type:
+            - text/plain
+            - application/json
+            - application/json; charset=utf-8
+          ignore_uri_case: false
+          memory:
+            dictionary_name: kong_db_cache
+          request_method:
+            - GET
+            - HEAD
+          response_code:
+            - 200
+            - 301
+            - 404
+          response_headers:
+            X-Cache-Key: true
+            X-Cache-Status: true
+            age: true
+          strategy: memory
   - name: timetracker-schedule
     connect_timeout: 5000
     enabled: true
