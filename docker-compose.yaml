@@ -114,6 +114,6 @@ services:
 # NETWORK definition
 # -----------------------------------------------------------
 networks:
-  network-kong:
+  kong-network:
     driver: bridge
     name: kong-network
