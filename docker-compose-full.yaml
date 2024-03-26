@@ -187,7 +187,14 @@ services:
 # -----------------------------------------------------------
 # NETWORK definition
 # -----------------------------------------------------------
+#networks:
+#  kong-network:
+#    external: true
+#    name: nobio-network
+# -----------------------------------------------------------
+# NETWORK definition
+# -----------------------------------------------------------
 networks:
   kong-network:
-    external: true
-    name: nobio-network
+    driver: bridge
+    name: kong-network
