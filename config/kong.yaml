@@ -409,6 +409,30 @@ services:
         request_buffering: true
         response_buffering: true
         strip_path: true
+  - name: timetracker-experiment
+    connect_timeout: 5000
+    enabled: false
+    host: timetracker
+    path: /api/experiment
+    port: 30000
+    protocol: http
+    read_timeout: 5000
+    write_timeout: 5000
+    retries: 0
+    routes:
+      - name: timetracker-experiment
+        https_redirect_status_code: 426
+        path_handling: v1
+        paths:
+          - /timetracker/api/experiment
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        strip_path: true
   - name: timetracker-health
     connect_timeout: 5000
     enabled: true
